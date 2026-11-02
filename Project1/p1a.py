@@ -25,37 +25,42 @@ class MotionController(Node):
 
         self.timer = self.create_timer(timer_period=1, callback=self.motion_sequence)
 
-        self.__change_motion(motion_phase=MotionPhase.FORWARD, motion_changed=True)
+        self.motion_phase = MotionPhase.FORWARD
+        self.motion_changed = False
+        self.__change_motion()
 
         self.get_logger().info('Motion started')
 
-    def __change_motion(self, motion_phase: MotionPhase, motion_changed: bool):
-        if not motion_changed:
+    def __change_motion(self):
+        if not self.motion_changed:
             return
 
-        if motion_phase == MotionPhase.FORWARD:
+        if self.motion_phase == MotionPhase.FORWARD:
             pass
-        elif motion_phase == MotionPhase.TURN_LEFT:
+        elif self.motion_phase == MotionPhase.TURN_LEFT:
             pass
-        elif motion_phase == MotionPhase.TURN_RIGHT:
+        elif self.motion_phase == MotionPhase.TURN_RIGHT:
             pass
-        elif motion_phase == MotionPhase.STOP:
+        elif self.motion_phase == MotionPhase.STOP:
             pass
+
+        self.motion_changed = False
 
     def motion_sequence(self):
         self.step_count += 1
 
-        if self.step_count == 10:
-            new_phase = MotionPhase.TURN_LEFT
-            motion_changed = True
-        elif self.step_count == 20:
-            new_phase = MotionPhase.TURN_RIGHT
-            motion_changed = True
-        elif self.step_count == 30:
-            new_phase = MotionPhase.STOP
-            motion_changed = True
 
-        self.__change_motion(new_phase, motion_changed)
+        if self.step_count == 10:
+            self.motion_phase = MotionPhase.TURN_LEFT
+            self.motion_changed = True
+        elif self.step_count == 20:
+            self.motion_phase = MotionPhase.TURN_RIGHT
+            self.motion_changed = True
+        elif self.step_count == 30:
+            self.motion_phase = MotionPhase.STOP
+            self.motion_changed = True
+
+        self.__change_motion()
 
     def imu_callback(self, msg):
         pass
