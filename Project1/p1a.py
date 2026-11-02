@@ -7,6 +7,8 @@ from geometry_msgs.msg import Twist, Vector3  # https://docs.ros.org/en/noetic/a
 from nav_msgs.msg import Odometry   # https://docs.ros.org/en/noetic/api/nav_msgs/html/msg/Odometry.html
 from sensor_msgs.msg import Imu     # https://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html
 
+import csv
+
 class MotionPhase(Enum):
     FORWARD = auto()
     TURN_LEFT = auto()
@@ -20,6 +22,13 @@ class MotionController(Node):
         super().__init__('motion_controller')
 
         self.step_count = 0
+        self.odom_data = [['position.x', 'position.y', 'position.z',
+                  'orientation.x', 'orientation.y', 'orientation.z', 'orientation.w',
+                  'linear.x', 'linear.y', 'linear.z',
+                  'angular.x', 'angular.y', 'angular.z']]
+        self.imu_data = [['orientation.x', 'orientation.y', 'orientation.z', 'orientation.w', 
+                  'angular_velocity.x', 'angular_velocity.y', 'angular_velocity.z', 
+                  'linear_acceleration.x', 'linear_acceleration.y', 'linear_acceleration.z']]
         
         self.velo_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.data_sub = self.create_subscription(Imu, '/imu/data', self.imu_callback, 10)
@@ -36,6 +45,7 @@ class MotionController(Node):
         self.get_logger().info('Stopping motion')
         self.timer.cancel()
         rclpy.shutdown()
+        self.save_data()
 
     def __change_motion(self):
         if not self.motion_changed:
@@ -80,10 +90,57 @@ class MotionController(Node):
         self.__change_motion()
 
     def imu_callback(self, msg):
-        pass
+        orientation = msg.orientation
+        angular_velocity = msg.angular_velocity
+        linear_acceleration = msg.linear_acceleration
+
+        data = []
+
+        data.append(orientation.x)
+        data.append(orientation.y)
+        data.append(orientation.z)
+        data.append(orientation.w)
+
+        data.append(angular_velocity.x)
+        data.append(angular_velocity.y)
+        data.append(angular_velocity.z)
+
+        data.append(linear_acceleration.x)
+        data.append(linear_acceleration.y)
+        data.append(linear_acceleration.z)
+
+        self.imu_data.append(data)
 
     def odom_callback(self, msg):
-        pass
+        pose = msg.pose.pose
+        twist = msg.twist.twist
+
+        data = []
+
+        data.append(pose.position.x)
+        data.append(pose.position.y)
+        data.append(pose.position.z)
+        data.append(pose.orientation.x)
+        data.append(pose.orientation.y)
+        data.append(pose.orientation.z)
+        data.append(pose.orientation.w)
+
+        data.append(twist.linear.x)
+        data.append(twist.linear.y)
+        data.append(twist.linear.z)
+        data.append(twist.angular.x)
+        data.append(twist.angular.y)
+        data.append(twist.angular.z)
+
+        self.odom_data.append(data)
+
+    def save_data(self):
+        with open('odom_data.csv', 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(self.odom_data)
+        with open('imu_data.csv', 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(self.imu_data)
 
 def main():
     rclpy.init()
