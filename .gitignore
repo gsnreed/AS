@@ -11,3 +11,16 @@ __pycache__/
 .vscode/
 
 /lectures
+/Project1/report/pics
+
+# Latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.toc
+*.synctex.gz
+*.bbl
+*.bcf
+*.blg
+*.run.xml

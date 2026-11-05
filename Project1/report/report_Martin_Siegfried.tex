@@ -1,0 +1,54 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[backend=biber, style=ieee]{biblatex}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx}
+
+\addbibresource{references.bib}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \includegraphics[width=8cm]{pics/Hochschule_Muenchen_Logo.pdf}
+    \nocite{hm_logo}
+    \par\vspace*{2cm}
+    {\Huge\bfseries Project 1\par}
+    \vspace{0.8cm}
+    {\LARGE Autonome Systeme und mobile Roboter\par}
+    \vspace{2.5cm}
+    {\Large Martin Siegfried\par}
+    \vfill
+    {\large \today\par}
+\end{titlepage}
+
+\chapter*{Eigenständigkeitserklärung}
+
+Hiermit versichere ich/versichern wir, dass die vorliegende Arbeit selbstständig und eigenständig verfasst und dabei ausschließlich die angegebenen Quellen und Hilfsmittel verwendet wurde. Die Arbeit wurde ohne Unterstützung durch Large Language Models (LLMs) oder andere generative KI-Systeme erstellt. Übernommene Gedanken, Inhalte und Textstellen aus fremden Quellen sind entsprechend gekennzeichnet.
+
+\chapter*{Acknowledgement}
+
+I/We hereby declare that the present work has been written independently and that only the sources and resources indicated have been used. The work was prepared without the assistance of Large Language Models (LLMs) or other generative AI systems. Any ideas, content, or passages taken from external sources have been appropriately acknowledged.
+
+\tableofcontents
+
+\pagenumbering{arabic}
+
+\chapter{A motion program}
+
+\chapter{Inertial navigation}
+
+\chapter{Lidar sensors in XACRO}
+
+\chapter{Robert as vacuum cleaner}
+
+\chapter{Coordinate transforms}
+
+\chapter{Differential/Integrating sensors}
+
+\clearpage
+\printbibliography[heading=bibintoc, title={Quellen}]
+
+\end{document}
