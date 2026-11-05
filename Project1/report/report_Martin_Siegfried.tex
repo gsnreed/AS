@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 \usepackage[backend=biber, style=ieee]{biblatex}
 \usepackage[ngerman]{babel}
-\usepackage{graphicx}
+\usepackage{amsmath}
 
 \addbibresource{references.bib}
 
@@ -28,7 +28,7 @@
 
 Hiermit versichere ich/versichern wir, dass die vorliegende Arbeit selbstständig und eigenständig verfasst und dabei ausschließlich die angegebenen Quellen und Hilfsmittel verwendet wurde. Die Arbeit wurde ohne Unterstützung durch Large Language Models (LLMs) oder andere generative KI-Systeme erstellt. Übernommene Gedanken, Inhalte und Textstellen aus fremden Quellen sind entsprechend gekennzeichnet.
 
-\chapter*{Acknowledgement}
+\vspace{1cm}
 
 I/We hereby declare that the present work has been written independently and that only the sources and resources indicated have been used. The work was prepared without the assistance of Large Language Models (LLMs) or other generative AI systems. Any ideas, content, or passages taken from external sources have been appropriately acknowledged.
 
@@ -44,11 +44,107 @@ I/We hereby declare that the present work has been written independently and tha
 
 \chapter{Robert as vacuum cleaner}
 
-\chapter{Coordinate transforms}
+\chapter{Koordinatentransformation}
+Ein Roboter mit den Weltkoordinaten (Translationsvektor) \(\boldsymbol{\tau}^w = \begin{pmatrix} 5 & 3 & 0 \end{pmatrix}^{T}\)
+wird um die z-Achse gedreht. Damit ergibt sich die Rotationsmatrix \(\mathbf{C}^r_w\) von Welt- zu Roboterkoordinaten, die
+abhängig vom Winkel \(\theta\) ist.
+
+
+\[
+    \mathbf{C}^r_w(\theta) =
+    \begin{pmatrix}
+        \cos\theta  & \sin\theta & 0 \\
+        -\sin\theta & \cos\theta & 0 \\
+        0           & 0          & 1
+    \end{pmatrix}
+\]
+Wird nun ein Objekt in den Weltkoordinaten \(\mathbf{v}^w = \begin{pmatrix} 9 & 1 & 1 \end{pmatrix}^{T}\) betrachtet,
+so kann dessen Position in den Roboterkoordinaten \(\mathbf{v}^r\) durch folgende Gleichung berechnet werden:
+
+\[
+    \mathbf{v}^r = \mathbf{C}^r_w(\mathbf{v}^w - \boldsymbol{\tau}^w)
+\]
+
+In homogenen Koordinaten kann dies auch durch die folgende Gleichung berechnet werden:
+
+\[
+    \tilde{\mathbf{v}}^r =
+    \begin{pmatrix}
+        \mathbf{v}^r \\
+        1
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \mathbf{C}^r_w & -\mathbf{C}^r_w\boldsymbol{\tau}^w \\
+        0              & 1
+    \end{pmatrix}
+    \tilde{\mathbf{v}}^w
+\]
+
+Mit dem Winkel \(\theta = \frac{\pi}{6}\) ergibt sich:
+
+\[
+    \tilde{\mathbf{v}}^r = \begin{pmatrix}
+        \frac{\sqrt{3}}{2} & 0.5                & 0 & -5.83013 \\
+        -0.5               & \frac{\sqrt{3}}{2} & 0 & -0.09808 \\
+        0                  & 0                  & 1 & 0        \\
+        0                  & 0                  & 0 & 1
+    \end{pmatrix}
+    \begin{pmatrix}
+        9 \\ 1 \\ 1 \\ 1
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        2.46410 \\ -3.73205 \\ 1 \\ 1
+    \end{pmatrix}
+\]
+
+In inhomogenen Koordinaten ergibt sich somit:
+
+\[\mathbf{v}^r = \begin{pmatrix} 2.464 & -3.732 & 1 \end{pmatrix}^{T}\]
+
+Wird hingegen der Punkt \(\mathbf{u}^r = \begin{pmatrix} 1 & 0 & 0 \end{pmatrix}^{T}\) in den Roboterkoordinaten betrachtet, so kann dessen Position in den Weltkoordinaten \(\mathbf{u}^w\) durch folgende Gleichung berechnet werden:
+
+\[
+    \mathbf{u}^w = \mathbf{C}^w_r\mathbf{u}^r + \boldsymbol{\tau}^w
+\]
+
+In inhomogenen Koordinaten ergibt sich somit:
+
+\[
+    \tilde{\mathbf{u}}^w =
+    \begin{pmatrix}
+        \mathbf{C}^w_r & \boldsymbol{\tau}^w \\
+        0              & 1
+    \end{pmatrix}
+    \tilde{\mathbf{u}}^r
+\]
+
+Mit dem Winkel \(\theta = \frac{\pi}{6}\) und der Relation \(\mathbf{C}^w_r = (\mathbf{C}^r_w)^T\) ergibt sich:
+
+\[
+    \tilde{\mathbf{u}}^w = \begin{pmatrix}
+        \frac{\sqrt{3}}{2} & -0.5               & 0 & 5 \\
+        0.5                & \frac{\sqrt{3}}{2} & 0 & 3 \\
+        0                  & 0                  & 1 & 0 \\
+        0                  & 0                  & 0 & 1
+    \end{pmatrix}
+    \begin{pmatrix}
+        1 \\ 0 \\ 0 \\ 1
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        5.86603 \\ 3.5 \\ 0 \\ 1
+    \end{pmatrix}
+\]
+
+Damit ergibt sich in inhomogenen Koordinaten:
+
+\[\mathbf{u}^w = \begin{pmatrix} 5.866 & 3.5 & 0 \end{pmatrix}^{T}\]
 
 \chapter{Differential/Integrating sensors}
 
 \clearpage
-\printbibliography[heading=bibintoc, title={Quellen}]
+\printbibliography[heading=bibintoc]
 
 \end{document}
