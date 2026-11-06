@@ -34,60 +34,60 @@ class MotionController(Node):
         self.data_sub = self.create_subscription(Imu, '/imu/data', self.imu_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
 
-        self.motion_phase = MotionPhase.FORWARD
-        self.motion_changed = True
-        self.timer = self.create_timer(timer_period=self.TIMER_PERIOD, callback=self.motion_sequence)
-        self.__change_motion()
-
-        self.get_logger().info('Motion started')
+        self.timer = self.create_timer(timer_period=MotionController.TIMER_PERIOD, callback=self.motion_sequence)
+                         
+        self.motion_sequence()
 
     def __stop_program(self):
-        self.get_logger().info('Stopping motion')
         self.timer.cancel()
         rclpy.shutdown()
         self.save_data()
 
-    def __change_motion(self):
-        if not self.motion_changed:
-            return
-
-        self.get_logger().info(f'Tick {self.step_count} | New Motion Phase: {self.motion_phase.name}')
-
+    def __change_motion(self, motion_phase: MotionPhase):
         twist_msg = Twist()
         linear_velocity = Vector3()
         angular_velocity = Vector3()
 
-        if self.motion_phase == MotionPhase.FORWARD:
+        if motion_phase == MotionPhase.FORWARD:
             linear_velocity.x = 0.5
-        elif self.motion_phase == MotionPhase.TURN_LEFT:
+        elif motion_phase == MotionPhase.TURN_LEFT:
             linear_velocity.x = 0.5
             angular_velocity.z = 0.5
-        elif self.motion_phase == MotionPhase.TURN_RIGHT:
+        elif motion_phase == MotionPhase.TURN_RIGHT:
             linear_velocity.x = 0.5
             angular_velocity.z = -0.5
-        elif self.motion_phase == MotionPhase.STOP:
+        elif motion_phase == MotionPhase.STOP:
             self.__stop_program()
 
         twist_msg.linear = linear_velocity
         twist_msg.angular = angular_velocity
         self.velo_pub.publish(twist_msg)
 
-        self.motion_changed = False
-
     def motion_sequence(self):
+
+        if self.step_count == 0:
+            motion_phase = MotionPhase.FORWARD
+            self.get_logger().info('Motion started')
+            self.__change_motion_and_log(motion_phase=motion_phase)
+        
+        elif self.step_count == 10:
+            motion_phase = MotionPhase.TURN_LEFT
+            self.__change_motion_and_log(motion_phase=motion_phase)
+
+        elif self.step_count == 20:
+            motion_phase = MotionPhase.TURN_RIGHT
+            self.__change_motion_and_log(motion_phase=motion_phase)
+
+        elif self.step_count == 30:
+            motion_phase = MotionPhase.STOP
+            self.__change_motion_and_log(motion_phase=motion_phase)
+            self.get_logger().info('Motion stopped')
+            
         self.step_count += 1
 
-        if self.step_count == 10:
-            self.motion_phase = MotionPhase.TURN_LEFT
-            self.motion_changed = True
-        elif self.step_count == 20:
-            self.motion_phase = MotionPhase.TURN_RIGHT
-            self.motion_changed = True
-        elif self.step_count == 30:
-            self.motion_phase = MotionPhase.STOP
-            self.motion_changed = True
-
-        self.__change_motion()
+    def __change_motion_and_log(self, motion_phase: MotionPhase):
+        self.__change_motion(motion_phase=motion_phase)
+        self.get_logger().info(f'Tick {self.step_count} | New Motion Phase: {motion_phase.name}')
 
     def imu_callback(self, msg):
         orientation = msg.orientation
@@ -135,10 +135,11 @@ class MotionController(Node):
         self.odom_data.append(data)
 
     def save_data(self):
-        with open('odom_data.csv', 'w', newline='') as f:
+        folder = 'data'
+        with open(f'{folder}/p1a_odom.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(self.odom_data)
-        with open('imu_data.csv', 'w', newline='') as f:
+        with open(f'{folder}/p1a_imu.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(self.imu_data)
 
