@@ -3,6 +3,8 @@ from enum import Enum, auto
 import rclpy
 from rclpy.node import Node
 
+# https://docs.ros2.org/foxy/api/geometry_msgs/msg/TwistStamped.html
+# https://docs.ros2.org/foxy/api/geometry_msgs/msg/Vector3.html
 from geometry_msgs.msg import TwistStamped, Twist, Vector3  # https://docs.ros2.org/foxy/api/geometry_msgs/msg/Twist.html
 from nav_msgs.msg import Odometry   # https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html
 from sensor_msgs.msg import Imu     # https://docs.ros2.org/foxy/api/sensor_msgs/msg/Imu.html
