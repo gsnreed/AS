@@ -17,8 +17,8 @@ class INA(Node):
         self.first = True
         self.last_t = 0.
         self.t0 = 0.
-        self.subscription = ...
-        self.pub_ = ...
+        self.subscription = self.create_subscription(Imu, '/imu', self.on_imu, 10)
+        self.pub_ = self.create_publisher(Odometry, '/diff_drive_base_controller/odom', 10)
         
     def quat2DCM(self, q):
         q0, q1, q2, q3 = q[0], q[1], q[2], q[3]

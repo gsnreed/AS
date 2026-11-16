@@ -39,11 +39,77 @@ I/We hereby declare that the present work has been written independently and tha
 
 \pagenumbering{arabic}
 
-\chapter{A motion program}
+\chapter{Bewegungsmodellierung}
+
+Die nachfolgenden Abbildungen zeigen, dass die Schaltpunkte nicht exakt bei geraden Zahlen stattfinden. Das liegt daran, dass in ROS2 mit Ticks, statt mit Sekunden gearbeitet wurde und ein Tick nicht unbedingt
+genau einer Sekunde entspricht. Das ist erst im Nachhinein aufgefallen.
+Innerhalb von 30 Ticks wird der Roboter mit folgenden Geschwindigkeitsprofilen gesteuert:
+\[
+    v_x(t)=
+    \begin{cases}
+        0.35\,\frac{\mathrm{m}}{\mathrm{s}} & 0 \leq t < 10  \\
+        0.25\,\frac{\mathrm{m}}{\mathrm{s}} & 10 \leq t < 30 \\
+        0                                   & \text{sonst}
+    \end{cases}
+\]
+
+\[
+    \omega_z(t)=
+    \begin{cases}
+        0                                     & 0 \leq t < 10  \\
+        0.5\,\frac{\mathrm{rad}}{\mathrm{s}}  & 10 \leq t < 20 \\
+        -0.5\,\frac{\mathrm{rad}}{\mathrm{s}} & 20 \leq t < 30 \\
+        0                                     & \text{sonst}
+    \end{cases}
+\]
+
+\includegraphics[width=0.5\textwidth]{pics/odometry_linear_velocity.pdf}
+\includegraphics[width=0.5\textwidth]{pics/odometry_angular_velocity.pdf}
+
+Damit ergeben sich folgende Odometriepositionen und -orientierungen:
+\includegraphics[width=0.5\textwidth]{pics/odometry_position.pdf}
+\includegraphics[width=0.5\textwidth]{pics/odometry_orientation.pdf}
+
+In den ersten 10 Ticks bewegt sich der Roboter geradlinig. Da sich die Orientierung nicht ändert, ist auch der Verlauf des Quaternions konstant.
+Ab 10 Ticks beginnt der Roboter sich abwechselnd nach links und rechts zu drehen. Aufgrund der Kreisbewegung bewegt sich die X- und Y-Komponente in Form einer Sinuskurve.
+Gleichzeitig ändert sich die Orientierung des Roboters.
+
+Wird die Inertial Measurement Unit (IMU) betrachtet, so ergeben sich folgende Messwerte:
+
+\includegraphics[width=0.5\textwidth]{pics/imu_angular_velocity.pdf}
+\includegraphics[width=0.5\textwidth]{pics/imu_orientation.pdf}
+
+Die Geschwindigkeit stimmt weitestgehend mit der Odometrie überein. Die Orientierung zeigt jedoch im Vergleich zur Odometrie eine deutliche Unstetigkeit im Bereich bei 20 Ticks.
+Es wirkt so als ob das Vorzeichen des Quaternions plötzlich umgekehrt wird.
+
+\includegraphics[width=0.5\textwidth]{pics/imu_linear_acceleration.pdf}
+
+Sensorrauschen ist in der Messung der Beschleunigung deutlich zu erkennen. Auch die Gravitationskraft ist
+in der Z-Komponente zu erkennen.
 
 \chapter{Inertial navigation}
 
-\chapter{Lidar sensors in XACRO}
+\chapter{Sensoren in XACRO}
+
+Der Roboter verfügt über zwei Sensoren. In diesem Abschnitt wird der vordere Sensor in seiner relativen Position zum Roboter
+nach oben verschoben, so dass er auch die Tischplatte erkennen kann.
+Folgende Abbildungen zeigen diese Verschiebung durch die Modifizierung der Z-Komponente des Sensors in der XACRO-Datei.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{pics/robo_low.png}
+        \caption{Niedrige Sensorstellung}
+
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{pics/robo_high.png}
+        \caption{Hohe Sensorstellung}
+    \end{minipage}
+
+\end{figure}
 
 \chapter{Robert as vacuum cleaner}
 
