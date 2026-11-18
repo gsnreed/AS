@@ -13,14 +13,15 @@ class INA(Node):
         self.v_w = np.array([0., 0., 0.])
         self.C_wb = np.identity(3)
         self.q_bw = np.array([1., 0., 0., 0.])     # wxyz 
-        self.g = np.array([0., 0., 9.807])         # world system with z axis up assumed
+        self.g = np.array([0., 0., 9.807])         # world system with z axis up assumed (Gravitation)
         self.first = True
         self.last_t = 0.
         self.t0 = 0.
         self.subscription = self.create_subscription(Imu, '/imu', self.on_imu, 10)
         self.pub_ = self.create_publisher(Odometry, '/diff_drive_base_controller/odom', 10)
         
-    def quat2DCM(self, q):
+    def quat2DCM(self, q):  # AS3 S. 46
+        """Quaternion in Rotationsmatrix umwandeln"""
         q0, q1, q2, q3 = q[0], q[1], q[2], q[3]
         r00 = 2 * (q0 * q0 + q1 * q1) - 1
         r01 = 2 * (q1 * q2 + q0 * q3)
@@ -35,7 +36,8 @@ class INA(Node):
                          [r10, r11, r12],
                          [r20, r21, r22]])
 
-    def quatDEQ(self, w):
+    def quatDEQ(self, w):   # AS3 S. 46
+        """Quaternion differential equation"""
         wx, wy, wz = w[0], w[1], w[2]
         return 0.5 * np.array([[0., -wx, -wy, -wz],
                                [wx,  0.,  wz, -wy],
@@ -50,13 +52,46 @@ class INA(Node):
             self.first = False
             return
         dt = t - self.last_t
-        
-        ...
+        self.last_t = t
+
+        angular_velocity = msg.angular_velocity
+        linear_acceleration = msg.linear_acceleration
+
+        w = np.array([angular_velocity.x, angular_velocity.y, angular_velocity.z])  # Winkelgeschwindigkeitsvektor
+        a_b = np.array([linear_acceleration.x, linear_acceleration.y, linear_acceleration.z])  # gemessene Beschleunigung im Körperkoordinatensystem
+
+        q_dot = self.quatDEQ(w) @ self.q_bw # Änderungsrate der Orientierung berechnen (q_dot = A(w) * q_bw)
+        self.q_bw += q_dot * dt
+
+        self.q_bw /= np.linalg.norm(self.q_bw)  # Normalisierung
+
+        self.C_wb = self.quat2DCM(self.q_bw)  # Rotationsmatrix aus Quaternion berechnen
+
+        a_w_mes = self.C_wb @ a_b - self.g   # Beschleunigung im Weltkoordinatensystem (a_w = C_wb * a_w_mess + g)
+
+        self.p_w += self.v_w * dt + 0.5 * a_w_mes * dt**2   # Position
+        self.v_w += a_w_mes * dt    # Geschwindigkeit
         
         self.get_logger().info(f't: {t-self.t0:.3f}: pos {self.p_w}, vel {self.v_w}, a {a_w_mes}, quat {self.q_bw}')
-        msg = Odometry()
-        
-        ...
+        msg = Odometry()    # https://docs.ros2.org/foxy/api/nav_msgs/msg/Odometry.html
+
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.pose.pose.position.x = self.p_w[0]
+        msg.pose.pose.position.y = self.p_w[1]
+        msg.pose.pose.position.z = self.p_w[2]
+
+        msg.pose.pose.orientation.x = self.q_bw[1]
+        msg.pose.pose.orientation.y = self.q_bw[2]
+        msg.pose.pose.orientation.z = self.q_bw[3]
+        msg.pose.pose.orientation.w = self.q_bw[0]
+
+        msg.twist.twist.linear.x = self.v_w[0]
+        msg.twist.twist.linear.y = self.v_w[1]
+        msg.twist.twist.linear.z = self.v_w[2]
+
+        msg.twist.twist.angular.x = w[0]
+        msg.twist.twist.angular.y = w[1]
+        msg.twist.twist.angular.z = w[2]
         
         self.pub_.publish(msg)
 

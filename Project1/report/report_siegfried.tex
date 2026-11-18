@@ -7,6 +7,36 @@
 \usepackage[backend=biber, style=ieee]{biblatex}
 \usepackage{amsmath}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{codegreen}{RGB}{0,120,0}
+\definecolor{codeblue}{RGB}{0,0,180}
+\definecolor{codepurple}{RGB}{120,0,120}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{codepurple},
+    numbers=left,
+    numberstyle=\scriptsize\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    frame=single,
+    rulecolor=\color{codeframe},
+    framesep=5pt,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    keepspaces=true,
+    captionpos=b
+}
+
 \addbibresource{references.bib}
 
 \begin{document}
@@ -85,7 +115,13 @@ Es wirkt so als ob das Vorzeichen des Quaternions plötzlich umgekehrt wird.
 \includegraphics[width=0.5\textwidth]{pics/imu_linear_acceleration.pdf}
 
 Sensorrauschen ist in der Messung der Beschleunigung deutlich zu erkennen. Auch die Gravitationskraft ist
-in der Z-Komponente zu erkennen.
+in der Z-Komponente zu erkennen. Der folgende Codeausschnitt zeigt die Implementierung der Bewegungsmodellierung:
+
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Bewegungsmodellierung},
+    label={lst:bewegungsmodellierung},
+]{../p1a.py}
 
 \chapter{Inertial navigation}
 
