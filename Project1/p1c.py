@@ -11,14 +11,14 @@ import random
 
 class Mode(Enum):
     FORWARD = auto()
-    TURN = auto()
-    STOP = auto()
+    TURN_LEFT = auto()
+    TURN_RIGHT = auto()
 
 class RoomMover(Node):
     def __init__(self):
         super().__init__('room_mover')
 
-        self.pub_ = self.create_publisher(TwistStamped, '/diff_drive_base_controller/cmd_vel', 10)
+        self.velo_pub = self.create_publisher(TwistStamped, '/diff_drive_base_controller/cmd_vel', 10)
         self.odom_subscr = self.create_subscription(Odometry, '/diff_drive_base_controller/odom', self.on_odom, 10)
         self.lidar_subscr = self.create_subscription(LaserScan, '/combined_laser_scan', self.on_lidar, 10)
 
@@ -37,7 +37,7 @@ class RoomMover(Node):
         self.min_collision_dist = 0.6   # Abstand zum Hindernis
         self.front_angle = 0.35 # Winkelbereich für Distanzmessung
 
-        self.info = self.get_logger().info('Motion started')
+        self.get_logger().info('Motion started')
 
         self.step_count = 0
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
@@ -55,7 +55,11 @@ class RoomMover(Node):
     def timer_callback(self):
         if self.pos_odom is None or self.ranges is None:
             return
-        self.sm()
+
+        if self.mode == Mode.FORWARD:
+            self.drive_forward()
+        elif self.mode == Mode.TURN_LEFT or self.mode == Mode.TURN_RIGHT:
+            self.turn()
 
     def get_front_distance(self):
         angles = np.arange(len(self.ranges)) * self.phi_increment + self.phi_min    # Winkel der Messungen (arange macht ein Array von 0 bis len(ranges)-1)
@@ -63,7 +67,44 @@ class RoomMover(Node):
         front_ranges = self.ranges[front_indices]   # Messungen im Vorderbereich
         return np.min(front_ranges) # Minimale Distanz im Vorderbereich
 
-    
+    def drive_forward(self):
+        dist = self.get_front_distance()
+
+        if dist < self.min_collision_dist:
+            direction = random.choice([-1, 1])
+            self.theta_target = self.theta_odom + direction * random.uniform(np.pi / 2, np.pi) # Richtungswechsel um 90 bis 180 Grad
+            
+            self.mode = Mode.TURN_LEFT if direction == -1 else Mode.TURN_RIGHT
+            self.get_logger().info(f'Obstacle detected at distance {dist}. Switching to mode {self.mode.name} at angle {self.theta_target}.')
+            self.turn()
+        else:
+            self.publish_velocity(self.v_cmd, 0.0)
+            self.get_logger().info(f'Moving forward at speed {self.v_cmd}. Distance to obstacle: {dist}.')
+
+    def turn(self):
+        if self.mode == Mode.TURN_LEFT:
+        # Nach links drehen
+            self.publish_velocity(0.0, self.omega_cmd)
+            self.get_logger().info(f'Turning left at angular speed {self.omega_cmd}. Current angle: {self.theta_odom}, Target angle: {self.theta_target}.')
+            if self.theta_odom >= self.theta_target:
+                self.mode = Mode.FORWARD
+                self.get_logger().info(f'Target angle reached. Switching to mode {self.mode.name}.')
+        # Nach rechts drehen
+        elif self.mode == Mode.TURN_RIGHT:
+            self.publish_velocity(0.0, -self.omega_cmd)
+            self.get_logger().info(f'Turning right at angular speed {self.omega_cmd}. Current angle: {self.theta_odom}, Target angle: {self.theta_target}.')
+            if self.theta_odom <= self.theta_target:
+                self.mode = Mode.FORWARD
+                self.get_logger().info(f'Target angle reached. Switching to mode {self.mode.name}.')
+
+    def publish_velocity(self, linear_x, angular_z):
+        velo_data = TwistStamped()
+        velo_data.header.stamp = self.get_clock().now().to_msg()
+
+        velo_data.twist.linear.x = linear_x
+        velo_data.twist.angular.z = angular_z
+        
+        self.velo_pub.publish(velo_data)
 
 def main(args=None):
     rclpy.init()
