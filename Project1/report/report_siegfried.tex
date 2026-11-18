@@ -249,7 +249,19 @@ Damit ergibt sich in inhomogenen Koordinaten:
 
 \chapter{Sensorrauschen}
 
+Beschleunigungssensoren sind ständigem (weißen) Rauschen \(w_t\) ausgesetzt. Die Verteilung des integrierten Rauschens (Geschwindigkeitsrauschen) \(B_t = \int_0^t w_\tau d\tau\) kann durch folgende Gleichung beschrieben werden:
 
+\[
+    B_t ~ \sim \mathcal{N}(\mu, \sigma^2) \quad \text{mit} \quad \mu = 0 \frac{m}{s} \quad \text{und} \quad \sigma^2 c \times t = 5 \frac{m^2}{s^2}
+\]
+
+Man spricht auch von Brownscher Bewegung mit der Konstanten \(c = 5 \frac{m^2}{s^3}\). Im Gegensatz zu einem konstanten Bias \(b\) ist die Varianz des weißen Rauschens zeitabhängig.
+
+Nach einer Zeit von \(t=5s\) ergibt sich somit eine Varianz von \(\sigma^2 = c \times t = 5 \frac{m^2}{s^3} \times 5s = 25 \frac{m^2}{s^2}\) und damit eine Verteilung von:
+
+\[
+    B_t ~ \sim \mathcal{N}(0, 25) \quad \text{mit} \quad \sigma = 5 \frac{m}{s}
+\]
 
 \clearpage
 \printbibliography[heading=bibintoc]
