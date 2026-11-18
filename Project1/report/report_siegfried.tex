@@ -37,6 +37,21 @@
     captionpos=b
 }
 
+\lstset{
+    language=xacro,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red!70!black},
+    commentstyle=\color{gray},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    showstringspaces=false,
+    tabsize=4
+}
+
 \addbibresource{references.bib}
 
 \begin{document}
@@ -123,7 +138,13 @@ in der Z-Komponente zu erkennen. Der folgende Codeausschnitt zeigt die Implement
     label={lst:bewegungsmodellierung},
 ]{../p1a.py}
 
-\chapter{Inertial navigation}
+\chapter{Inertiale Navigation}
+
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Aufnahme der IMU-Daten und Berechnung der Position},
+    label={lst:navigation},
+]{../p1b.py}
 
 \chapter{Sensoren in XACRO}
 
@@ -147,7 +168,18 @@ Folgende Abbildungen zeigen diese Verschiebung durch die Modifizierung der Z-Kom
 
 \end{figure}
 
-\chapter{Robert as vacuum cleaner}
+\lstinputlisting[language=xacro,caption={Xacro-Konfiguration der Laserscanner},label={lst:lidar_config}]{../assignment3.xacro}
+
+\chapter{Staubsaugerroboter}
+
+Der Code verhält sich mehr oder weniger wie ein Bug-Algorithmus. Der Roboter fährt geradeaus, bis er detektiert, dass ein Hindernis die minimale Distanz unterschreitet.
+Erst dann wird zufällig eine Richtung im Bereich \(\theta \in [-\pi, \frac{\pi}{2}] \lor \theta \in [\frac{\pi}{2}, \pi]\) gewählt und der Roboter dreht sich in diese Richtung. Erst dann fährt er wieder geradeaus.
+
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Bewegung des Staubsaugerroboters},
+    label={lst:staubsaugerroboter},
+]{../p1c.py}
 
 \chapter{Koordinatentransformation}
 Ein Roboter mit den Weltkoordinaten (Translationsvektor) \(\boldsymbol{\tau}^w = \begin{pmatrix} 5 & 3 & 0 \end{pmatrix}^{T}\)

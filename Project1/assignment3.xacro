@@ -1,0 +1,42 @@
+<root xmlns:xacro="http://www.ros.org/wiki/xacro">  
+    <xacro:include filename="$(find rsim_description)/urdf/sick_tim/sick_tim.urdf.xacro" />
+  
+    <xacro:macro name="add_lidars" params="config:=two_scanners link:=base_footprint link2:=base_footprint visualize:=false">
+    
+        <xacro:if value="${config=='two_scanners'}">
+            <xacro:sick_tim551 name="rearscanner" ros_topic="rearscan" min_range="0.3" visualize="${visualize}"/>
+            <joint name="baserearscanner_joint" type="fixed">
+                <parent link="${link}" />
+                <child link="rearscanner_mount_link" />
+                <origin rpy="0 0 ${M_PI}" xyz="-0.212 0.0 0.30"/>   //z-Achse von 0.27 auf 0.30 erhöhen
+            </joint> 
+
+            <xacro:sick_tim551 name="frontscanner" ros_topic="frontscan" min_range="0.3" visualize="${visualize}"/>
+            <joint name="basefrontscanner_joint" type="fixed">
+                <parent link="${link2}" />
+                <child link="frontscanner_mount_link" />
+                <origin rpy="0 0 0" xyz="0.19 0.0 0.27"/>
+            </joint>
+        </xacro:if>
+
+        <xacro:if value="${config=='leuze'}">
+            <link name="laser_frame">
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find rsim_description)/meshes/sensors/leuze_rs4.stl" scale="0.001 0.001 0.001" />
+                    </geometry>
+                    <origin xyz="-0.17 0 -0.061237" rpy="0 0 0" />
+                    <material name="yellow"/>
+                </visual>
+            </link>
+
+            <joint name="RobotToLaserscanner_joint" type="fixed">
+                <parent link="base_footprint" />
+                <child link="laser_frame" />
+                <origin xyz="0.109 0 0.326237" />
+            </joint>
+        </xacro:if>
+
+    </xacro:macro>
+
+</root>
