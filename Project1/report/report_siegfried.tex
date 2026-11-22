@@ -7,51 +7,6 @@
 \usepackage[backend=biber, style=ieee]{biblatex}
 \usepackage{amsmath}
 
-\usepackage{listings}
-\usepackage{xcolor}
-
-\definecolor{codebg}{RGB}{248,248,248}
-\definecolor{codeframe}{RGB}{220,220,220}
-\definecolor{codegreen}{RGB}{0,120,0}
-\definecolor{codeblue}{RGB}{0,0,180}
-\definecolor{codepurple}{RGB}{120,0,120}
-
-\lstset{
-    language=Python,
-    basicstyle=\ttfamily\scriptsize,
-    keywordstyle=\color{codeblue}\bfseries,
-    commentstyle=\color{codegreen}\itshape,
-    stringstyle=\color{codepurple},
-    numbers=left,
-    numberstyle=\scriptsize\color{gray},
-    stepnumber=1,
-    numbersep=10pt,
-    frame=single,
-    rulecolor=\color{codeframe},
-    framesep=5pt,
-    showstringspaces=false,
-    breaklines=true,
-    breakatwhitespace=true,
-    tabsize=4,
-    keepspaces=true,
-    captionpos=b
-}
-
-\lstset{
-    language=xacro,
-    basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue},
-    stringstyle=\color{red!70!black},
-    commentstyle=\color{gray},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    breaklines=true,
-    frame=single,
-    captionpos=b,
-    showstringspaces=false,
-    tabsize=4
-}
-
 \addbibresource{references.bib}
 
 \begin{document}
@@ -126,60 +81,52 @@ Wird die Inertial Measurement Unit (IMU) betrachtet, so ergeben sich folgende Me
 
 Die Geschwindigkeit stimmt weitestgehend mit der Odometrie überein. Die Orientierung zeigt jedoch im Vergleich zur Odometrie eine deutliche Unstetigkeit im Bereich bei 20 Ticks.
 Es wirkt so als ob das Vorzeichen des Quaternions plötzlich umgekehrt wird.
+Vermutlich lässt sich das anhand der Umrechnung von Quaternionen zu Rotationsmatrizen erklären. Die
+Odometrie integriert dahingehend die Winkelgeschwindigkeit kontinuierlich. Somit gibt es hier keine Sprünge aufgrund von Vorzeichendrehern
 
 \includegraphics[width=0.5\textwidth]{pics/imu_linear_acceleration.pdf}
 
 Sensorrauschen ist in der Messung der Beschleunigung deutlich zu erkennen. Auch die Gravitationskraft ist
-in der Z-Komponente zu erkennen. Der folgende Codeausschnitt zeigt die Implementierung der Bewegungsmodellierung:
-
-\lstinputlisting[
-    language=Python,
-    caption={Code zur Bewegungsmodellierung},
-    label={lst:bewegungsmodellierung},
-]{../p1a.py}
+in der Z-Komponente zu erkennen.
 
 \chapter{Inertiale Navigation}
-
-\lstinputlisting[
-    language=Python,
-    caption={Code zur Aufnahme der IMU-Daten und Berechnung der Position},
-    label={lst:navigation},
-]{../p1b.py}
 
 \chapter{Sensoren in XACRO}
 
 Der Roboter verfügt über zwei Sensoren. In diesem Abschnitt wird der vordere Sensor in seiner relativen Position zum Roboter
-nach oben verschoben, so dass er auch die Tischplatte erkennen kann.
+nach oben verschoben, so dass er auch die Tischplatte klar erkennen kann.
 Folgende Abbildungen zeigen diese Verschiebung durch die Modifizierung der Z-Komponente des Sensors in der XACRO-Datei.
+Es ist deutlich ein rundes Objekt zu erkennen, das mit der Position der Tischplatte übereinstimmt.
 
 \begin{figure}
     \centering
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{pics/robo_low.png}
-        \caption{Niedrige Sensorstellung}
+        \caption{Niedrige Sensorstellung mit \(z = 0.27m\)}
 
     \end{minipage}\hfill
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{pics/robo_high.png}
-        \caption{Hohe Sensorstellung}
+        \caption{Hohe Sensorstellung mit \(z = 0.30m\)}
     \end{minipage}
 
 \end{figure}
 
-\lstinputlisting[language=xacro,caption={Xacro-Konfiguration der Laserscanner},label={lst:lidar_config}]{../assignment3.xacro}
-
 \chapter{Staubsaugerroboter}
 
 Der Code verhält sich mehr oder weniger wie ein Bug-Algorithmus. Der Roboter fährt geradeaus, bis er detektiert, dass ein Hindernis die minimale Distanz unterschreitet.
-Erst dann wird zufällig eine Richtung im Bereich \(\theta \in [-\pi, \frac{\pi}{2}] \lor \theta \in [\frac{\pi}{2}, \pi]\) gewählt und der Roboter dreht sich in diese Richtung. Erst dann fährt er wieder geradeaus.
+Erst dann wird zufällig eine Richtung im Bereich \(\theta \in [-\pi, \frac{\pi}{2}] \lor \theta \in [\frac{\pi}{2}, \pi]\) gewählt und der Roboter dreht sich in diese Richtung.
+Nach kurzen Aufstoppen fährt er wieder geradeaus, sofern kein Hindernis in der neuen Richtung liegt.
+Falls doch, wird solange eine neue zufällige Richtung gewählt, bis ein freier Weg gefunden ist.
+Der Bewegungsalgorithmus ist in der Datei \texttt{p1c.py} implementiert. Drei Zustände beschreiben die Bewegung des Roboters:
 
-\lstinputlisting[
-    language=Python,
-    caption={Code zur Bewegung des Staubsaugerroboters},
-    label={lst:staubsaugerroboter},
-]{../p1c.py}
+\begin{enumerate}
+    \item \textbf{FORWARD:} Der Roboter fährt geradeaus, bis er ein Hindernis erkennt.
+    \item \textbf{TURN\_LEFT:} Der Roboter dreht sich um die eigene Achse nach links bis zu seinem neuen Sollwinkel.
+    \item \textbf{TURN\_RIGHT:} Der Roboter dreht sich um die eigene Achse nach rechts bis zu seinem neuen Sollwinkel.
+\end{enumerate}
 
 \chapter{Koordinatentransformation}
 Ein Roboter mit den Weltkoordinaten (Translationsvektor) \(\boldsymbol{\tau}^w = \begin{pmatrix} 5 & 3 & 0 \end{pmatrix}^{T}\)
@@ -281,10 +228,10 @@ Damit ergibt sich in inhomogenen Koordinaten:
 
 \chapter{Sensorrauschen}
 
-Beschleunigungssensoren sind ständigem (weißen) Rauschen \(w_t\) ausgesetzt. Die Verteilung des integrierten Rauschens (Geschwindigkeitsrauschen) \(B_t = \int_0^t w_\tau d\tau\) kann durch folgende Gleichung beschrieben werden:
+Beschleunigungssensoren sind ständigem (weißen) Rauschen \(w_t\) ausgesetzt. Die Verteilung des integrierten Rauschens (Geschwindigkeitsrauschen) \(B_t = \int_0^t w_\tau d\tau\) kann nach einer Zeit von \(t = 1s\) durch folgende Gleichung beschrieben werden:
 
 \[
-    B_t \sim \mathcal{N}(\mu, \sigma^2) \quad \text{mit} \quad \mu = 0 \frac{m}{s} \quad \text{und} \quad \sigma^2 c \times t = 5 \frac{m^2}{s^2}
+    B_t \sim \mathcal{N}(\mu, \sigma^2) \quad \text{mit} \quad \mu = 0 \frac{m}{s} \quad \text{und} \quad \sigma^2 = c \times t = 5 \frac{m^2}{s^2}
 \]
 
 Man spricht auch von Brownscher Bewegung mit der Konstanten \(c = 5 \frac{m^2}{s^3}\). Im Gegensatz zu einem konstanten Bias \(b\) ist die Varianz des weißen Rauschens zeitabhängig.
@@ -292,8 +239,10 @@ Man spricht auch von Brownscher Bewegung mit der Konstanten \(c = 5 \frac{m^2}{s
 Nach einer Zeit von \(t=5s\) ergibt sich somit eine Varianz von \(\sigma^2 = c \times t = 5 \frac{m^2}{s^3} \times 5s = 25 \frac{m^2}{s^2}\) und damit eine Verteilung von:
 
 \[
-    B_t \sim \mathcal{N}(0, 25) \quad \text{mit} \quad \sigma = 5 \frac{m}{s}
+    B_t \sim \mathcal{N}(0 \frac{m}{s}, 25 \frac{m^2}{s^2}) \quad \text{mit} \quad \sigma = 5 \frac{m}{s}
 \]
+
+Die Gaußkurve der Verteilung wird somit mit zunehmender Zeit immer breiter und flacher. Somit wird das Verhalten immer unvorhersehbarer.
 
 \clearpage
 \printbibliography[heading=bibintoc]
