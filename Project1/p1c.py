@@ -13,19 +13,6 @@ class Mode(Enum):
     FORWARD = auto()
     TURN_LEFT = auto()
     TURN_RIGHT = auto()
-from geometry_msgs.msg import TwistStamped
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan # https://docs.ros2.org/latest/api/sensor_msgs/msg/LaserScan.html
-import numpy as np
-from enum import Enum, auto
-import random
-
-# Aus dem Bug Algorithmus Code abgewandelt
-
-class Mode(Enum):
-    FORWARD = auto()
-    TURN_LEFT = auto()
-    TURN_RIGHT = auto()
 
 class RoomMover(Node):
     def __init__(self):
@@ -97,7 +84,7 @@ class RoomMover(Node):
             self.get_logger().info(f'Moving forward at speed {self.v_cmd}. Distance to obstacle: {dist}.')
 
     def get_angle_difference(self):
-        """https://api.nav2.org/nav2-humble/html/angleutils_8hpp_source.html?utm_source=chatgpt.com"""
+        """https://api.nav2.org/nav2-humble/html/angleutils_8hpp_source.html"""
 
         t1 = np.arctan2(np.sin(self.theta_odom), np.cos(self.theta_odom))
         t2 = np.arctan2(np.sin(self.theta_target), np.cos(self.theta_target))
