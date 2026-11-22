@@ -7,6 +7,51 @@
 \usepackage[backend=biber, style=ieee]{biblatex}
 \usepackage{amsmath}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{220,220,220}
+\definecolor{codegreen}{RGB}{0,120,0}
+\definecolor{codeblue}{RGB}{0,0,180}
+\definecolor{codepurple}{RGB}{120,0,120}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codeblue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{codepurple},
+    numbers=left,
+    numberstyle=\scriptsize\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    frame=single,
+    rulecolor=\color{codeframe},
+    framesep=5pt,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    keepspaces=true,
+    captionpos=b
+}
+
+\lstset{
+    language=xacro,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red!70!black},
+    commentstyle=\color{gray},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    showstringspaces=false,
+    tabsize=4
+}
+
 \addbibresource{references.bib}
 
 \begin{document}
@@ -85,9 +130,21 @@ Es wirkt so als ob das Vorzeichen des Quaternions plötzlich umgekehrt wird.
 \includegraphics[width=0.5\textwidth]{pics/imu_linear_acceleration.pdf}
 
 Sensorrauschen ist in der Messung der Beschleunigung deutlich zu erkennen. Auch die Gravitationskraft ist
-in der Z-Komponente zu erkennen.
+in der Z-Komponente zu erkennen. Der folgende Codeausschnitt zeigt die Implementierung der Bewegungsmodellierung:
 
-\chapter{Inertial navigation}
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Bewegungsmodellierung},
+    label={lst:bewegungsmodellierung},
+]{../p1a.py}
+
+\chapter{Inertiale Navigation}
+
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Aufnahme der IMU-Daten und Berechnung der Position},
+    label={lst:navigation},
+]{../p1b.py}
 
 \chapter{Sensoren in XACRO}
 
@@ -111,7 +168,18 @@ Folgende Abbildungen zeigen diese Verschiebung durch die Modifizierung der Z-Kom
 
 \end{figure}
 
-\chapter{Robert as vacuum cleaner}
+\lstinputlisting[language=xacro,caption={Xacro-Konfiguration der Laserscanner},label={lst:lidar_config}]{../assignment3.xacro}
+
+\chapter{Staubsaugerroboter}
+
+Der Code verhält sich mehr oder weniger wie ein Bug-Algorithmus. Der Roboter fährt geradeaus, bis er detektiert, dass ein Hindernis die minimale Distanz unterschreitet.
+Erst dann wird zufällig eine Richtung im Bereich \(\theta \in [-\pi, \frac{\pi}{2}] \lor \theta \in [\frac{\pi}{2}, \pi]\) gewählt und der Roboter dreht sich in diese Richtung. Erst dann fährt er wieder geradeaus.
+
+\lstinputlisting[
+    language=Python,
+    caption={Code zur Bewegung des Staubsaugerroboters},
+    label={lst:staubsaugerroboter},
+]{../p1c.py}
 
 \chapter{Koordinatentransformation}
 Ein Roboter mit den Weltkoordinaten (Translationsvektor) \(\boldsymbol{\tau}^w = \begin{pmatrix} 5 & 3 & 0 \end{pmatrix}^{T}\)
@@ -213,7 +281,19 @@ Damit ergibt sich in inhomogenen Koordinaten:
 
 \chapter{Sensorrauschen}
 
+Beschleunigungssensoren sind ständigem (weißen) Rauschen \(w_t\) ausgesetzt. Die Verteilung des integrierten Rauschens (Geschwindigkeitsrauschen) \(B_t = \int_0^t w_\tau d\tau\) kann durch folgende Gleichung beschrieben werden:
 
+\[
+    B_t \sim \mathcal{N}(\mu, \sigma^2) \quad \text{mit} \quad \mu = 0 \frac{m}{s} \quad \text{und} \quad \sigma^2 c \times t = 5 \frac{m^2}{s^2}
+\]
+
+Man spricht auch von Brownscher Bewegung mit der Konstanten \(c = 5 \frac{m^2}{s^3}\). Im Gegensatz zu einem konstanten Bias \(b\) ist die Varianz des weißen Rauschens zeitabhängig.
+
+Nach einer Zeit von \(t=5s\) ergibt sich somit eine Varianz von \(\sigma^2 = c \times t = 5 \frac{m^2}{s^3} \times 5s = 25 \frac{m^2}{s^2}\) und damit eine Verteilung von:
+
+\[
+    B_t \sim \mathcal{N}(0, 25) \quad \text{mit} \quad \sigma = 5 \frac{m}{s}
+\]
 
 \clearpage
 \printbibliography[heading=bibintoc]
