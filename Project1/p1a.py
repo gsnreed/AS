@@ -31,14 +31,48 @@ class MotionController(Node):
         self.imu_data = [['timestamp', 'orientation.x', 'orientation.y', 'orientation.z', 'orientation.w', 
                   'angular_velocity.x', 'angular_velocity.y', 'angular_velocity.z', 
                   'linear_acceleration.x', 'linear_acceleration.y', 'linear_acceleration.z']]
+        self.ina_data = [['timestamp', 'position.x', 'position.y', 'position.z',
+                  'orientation.x', 'orientation.y', 'orientation.z', 'orientation.w',
+                  'linear.x', 'linear.y', 'linear.z',
+                  'angular.x', 'angular.y', 'angular.z']]
         
         self.velo_pub = self.create_publisher(TwistStamped, '/diff_drive_base_controller/cmd_vel', 10)
         self.data_sub = self.create_subscription(Imu, '/imu', self.imu_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, '/diff_drive_base_controller/odom', self.odom_callback, 10)
+        self.ina_sub = self.create_subscription(Odometry,'/inertial_navigation/odom',self.ina_callback,10)
 
         self.timer = self.create_timer(timer_period_sec=MotionController.TIMER_PERIOD, callback=self.motion_sequence)
                          
         self.motion_sequence()
+
+    def ina_callback(self, msg):
+        timestamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+
+        pose = msg.pose.pose
+        twist = msg.twist.twist
+
+        data = []
+
+        data.append(timestamp)
+
+        data.append(pose.position.x)
+        data.append(pose.position.y)
+        data.append(pose.position.z)
+
+        data.append(pose.orientation.x)
+        data.append(pose.orientation.y)
+        data.append(pose.orientation.z)
+        data.append(pose.orientation.w)
+
+        data.append(twist.linear.x)
+        data.append(twist.linear.y)
+        data.append(twist.linear.z)
+
+        data.append(twist.angular.x)
+        data.append(twist.angular.y)
+        data.append(twist.angular.z)
+
+        self.ina_data.append(data)
 
     def motion_sequence(self):
         if self.step_count == 0:
@@ -105,6 +139,9 @@ class MotionController(Node):
         with open(f'{folder}/p1a_imu.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(self.imu_data)
+        with open(f'{folder}/p1b_ina.csv', 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows(self.ina_data)
 
     def imu_callback(self, msg):
         timestamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9

@@ -10,12 +10,15 @@ def plot_data(df, columns, labels, title, ylabel):
 def main():
     imu = pd.read_csv('data/p1a_imu.csv')
     odom = pd.read_csv('data/p1a_odom.csv')
+    ina = pd.read_csv('data/p1b_ina.csv')
     # Timestamp normalisieren
     imu['timestamp'] = imu['timestamp'] - imu['timestamp'].iloc[0]
     odom['timestamp'] = odom['timestamp'] - odom['timestamp'].iloc[0]
+    ina['timestamp'] = ina['timestamp'] - ina['timestamp'].iloc[0]
 
     print(imu.head())
     print(odom.head())
+    print(ina.head())
 
     # https://stackoverflow.com/questions/47775220/how-to-plot-multiple-pandas-columns
 
@@ -27,6 +30,11 @@ def main():
     plot_data(odom, ['orientation.x', 'orientation.y', 'orientation.z', 'orientation.w'], ['X', 'Y', 'Z', 'W'], 'Odometry Orientation', 'Orientation [rad]')
     plot_data(odom, ['linear.x', 'linear.y', 'linear.z'], ['X', 'Y', 'Z'], 'Odometry Linear Velocity', 'Linear Velocity [m/s]')
     plot_data(odom, ['angular.x', 'angular.y', 'angular.z'], ['X', 'Y', 'Z'], 'Odometry Angular Velocity', 'Angular Velocity [rad/s]')
+    
+    plot_data(ina, ['position.x', 'position.y', 'position.z'], ['X', 'Y', 'Z'], 'Ina Position', 'Position [m]')
+    plot_data(ina, ['orientation.x', 'orientation.y', 'orientation.z', 'orientation.w'], ['X', 'Y', 'Z', 'W'], 'Ina Orientation', 'Orientation [rad]')
+    plot_data(ina, ['linear.x', 'linear.y', 'linear.z'], ['X', 'Y', 'Z'], 'Ina Linear Velocity', 'Linear Velocity [m/s]')
+    plot_data(ina, ['angular.x', 'angular.y', 'angular.z'], ['X', 'Y', 'Z'], 'Ina Angular Velocity', 'Angular Velocity [rad/s]')
     plt.show()
 
 if __name__ == '__main__':
