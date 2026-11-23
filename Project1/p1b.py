@@ -65,7 +65,7 @@ class INA(Node):
 
         self.q_bw /= np.linalg.norm(self.q_bw)  # Normalisierung
 
-        self.C_wb = self.quat2DCM(self.q_bw)  # Rotationsmatrix aus Quaternion berechnen
+        self.C_wb = self.quat2DCM(self.q_bw).T  # Rotationsmatrix aus Quaternion berechnen
 
         a_w_mes = self.C_wb @ a_b - self.g   # Beschleunigung im Weltkoordinatensystem (a_w = C_wb * a_w_mess + g)
 

@@ -82,7 +82,7 @@ Wird die Inertial Measurement Unit (IMU) betrachtet, so ergeben sich folgende Me
 Die Geschwindigkeit stimmt weitestgehend mit der Odometrie überein. Die Orientierung zeigt jedoch im Vergleich zur Odometrie eine deutliche Unstetigkeit im Bereich bei 20 Ticks.
 Es wirkt so als ob das Vorzeichen des Quaternions plötzlich umgekehrt wird.
 Vermutlich lässt sich das anhand der Umrechnung von Quaternionen zu Rotationsmatrizen erklären. Die
-Odometrie integriert dahingehend die Winkelgeschwindigkeit kontinuierlich. Somit gibt es hier keine Sprünge aufgrund von Vorzeichendrehern
+Odometrie integriert dahingehend die Winkelgeschwindigkeit kontinuierlich. Somit gibt es hier keine Sprünge aufgrund von Vorzeichendrehern.
 
 \includegraphics[width=0.5\textwidth]{pics/imu_linear_acceleration.pdf}
 
@@ -90,6 +90,18 @@ Sensorrauschen ist in der Messung der Beschleunigung deutlich zu erkennen. Auch 
 in der Z-Komponente zu erkennen.
 
 \chapter{Inertiale Navigation}
+
+An dieser Stelle wird die Inertiale Navigation berechnet. Dazu wird die gleiche Bewegung wie in Kapitel 1 betrachtet und die Aktualisierungsrate des Sensors auf \(f=100Hz\) erhöht.
+
+Auffällig hier ist, dass die Z-Komponente der Position immer weiter abnimmt, obwohl die Graviationskraft rausgerechnet wurde. Dies lässt sich dadurch erklären, dass der herausgerechnete Wert nicht exakt dem wahren Wert der Gravitationskraft entspricht.
+Des weiteren ist die lineare Geschwindigkeit einem starken Schwingen ausgesetzt. Leider konnte die Ursache hierfür nicht erklärt werden. Sie resultiert jedoch aus der Art wie die Geschwindigkeit mithilfe der Rotationsmatrix berechnet wird.
+
+\includegraphics[width=0.5\textwidth]{pics/ina_linear_velocity.pdf}
+\includegraphics[width=0.5\textwidth]{pics/ina_angular_velocity.pdf}
+
+\includegraphics[width=0.5\textwidth]{pics/ina_position.pdf}
+\includegraphics[width=0.5\textwidth]{pics/ina_orientation.pdf}
+
 
 \chapter{Sensoren in XACRO}
 

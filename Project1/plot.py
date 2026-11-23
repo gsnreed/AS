@@ -8,9 +8,9 @@ def plot_data(df, columns, labels, title, ylabel):
 
 
 def main():
-    imu = pd.read_csv('data/p1a_imu.csv')
-    odom = pd.read_csv('data/p1a_odom.csv')
-    ina = pd.read_csv('data/p1b_ina.csv')
+    imu = pd.read_csv('data_b/p1a_imu.csv')
+    odom = pd.read_csv('data_b/p1a_odom.csv')
+    ina = pd.read_csv('data_b/p1b_ina.csv')
     # Timestamp normalisieren
     imu['timestamp'] = imu['timestamp'] - imu['timestamp'].iloc[0]
     odom['timestamp'] = odom['timestamp'] - odom['timestamp'].iloc[0]
